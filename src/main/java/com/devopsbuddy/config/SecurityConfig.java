@@ -2,10 +2,14 @@ package com.devopsbuddy.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Rene on 15/07/2017.
@@ -16,6 +20,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    //Spring hace esta variable disponible por defecto
+    @Autowired
+    private Environment env;
     /**
      * URLs públicos
      */
@@ -27,12 +34,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/",
             "/about/**",
             "/contact/**",
-            "/error/**/*"   //cualquier error que pueda ocurrir
+            "/error/**/*",   //cualquier error que pueda ocurrir
+            "/console/**"   //para habilitar la consola de H2 que ya viene out of the box!
     };
 
     //Configuramos el módulo de seguridad
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        List<String> activeProfiles = Arrays.asList(env.getActiveProfiles()); //lsita de todos los profiles activos
+        if (activeProfiles.contains("dev")) {
+            http.csrf().disable(); //para q funcione H2 correctamente
+            http.headers().frameOptions().disable();
+        }
+
         http
                 .authorizeRequests() //autoriza todos los http requests
                 .antMatchers(PUBLIC_MATCHERS).permitAll() //no es requerida la autenticación para PUBLIC_MATCHERS
