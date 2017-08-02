@@ -2,13 +2,16 @@ package com.devopsbuddy.config;
 
 import com.devopsbuddy.backend.service.UserSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +30,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //Spring hace esta variable disponible por defecto
     @Autowired
     private Environment env;
+
+    /**
+     * Una vez definido nunca debe ser cambiado
+     * tmbien si consideras usar este proyecto en producción es importante que SALT no sea compartido con naide
+     * en un negocio comercial esto seguro es almacenado en una DB
+     */
+    private static final String SALT = "SDkjoaisjdfoi120fff";
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        // strenght es por defecto 10, en este caso le estamos poniendo 12
+        //mientras mas largo el strength mas trabajo se tiene q hacer exponencialmente para Hashear el password!
+        //hay q encontrar el balance entre velocidad y strength
+
+        return new BCryptPasswordEncoder(12, new SecureRandom(SALT.getBytes()));
+    }
+
     /**
      * URLs públicos
      */
@@ -70,7 +90,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .inMemoryAuthentication()
 //                .withUser("user").password("password") //configuramos los valores para el usuario y la contraseña
 //                .roles("USER");
-                .userDetailsService(userSecurityService);
+                .userDetailsService(userSecurityService)
+                .passwordEncoder(passwordEncoder());
     }
 
 
