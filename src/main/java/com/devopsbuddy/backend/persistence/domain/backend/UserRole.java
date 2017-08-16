@@ -25,11 +25,13 @@ public class UserRole implements Serializable{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(fetch= FetchType.EAGER)
+    //si le pones EAGER y quieres borrar un usuario sale error de FOREIGN KEY CONSTRAINT
+    @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
 
-    @ManyToOne(fetch= FetchType.EAGER)
+    //si le pones EAGER y quieres borrar un usuario sale error de FOREIGN KEY CONSTRAINT
+    @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="role_id")
     private Role role;
 

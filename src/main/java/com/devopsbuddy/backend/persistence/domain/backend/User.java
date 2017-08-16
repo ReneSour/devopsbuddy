@@ -27,10 +27,12 @@ public class User implements Serializable,UserDetails{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(unique = true)
     private String username;
 
     private String password;
 
+    @Column(unique = true)
     private String email;
 
     @Column(name = "first_name")
@@ -56,11 +58,11 @@ public class User implements Serializable,UserDetails{
     private boolean enabled;
 
     //Habrá muchos usuarios con el mismo plan
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id") //la columna en la tabla que será utilizada como foreign key
     private Plan plan;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserRole> userRoles = new HashSet<>();
 
     public Long getId() {
